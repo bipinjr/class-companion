@@ -14,7 +14,314 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assessments: {
+        Row: {
+          avg_score: number | null
+          completion_rate: number | null
+          created_at: string
+          id: string
+          notes: string | null
+          session_id: string
+          type: Database["public"]["Enums"]["assessment_type"]
+        }
+        Insert: {
+          avg_score?: number | null
+          completion_rate?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          session_id: string
+          type: Database["public"]["Enums"]["assessment_type"]
+        }
+        Update: {
+          avg_score?: number | null
+          completion_rate?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          session_id?: string
+          type?: Database["public"]["Enums"]["assessment_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attachments: {
+        Row: {
+          description: string | null
+          file_name: string
+          file_url: string
+          id: string
+          topic_id: string
+          uploaded_at: string
+        }
+        Insert: {
+          description?: string | null
+          file_name: string
+          file_url: string
+          id?: string
+          topic_id: string
+          uploaded_at?: string
+        }
+        Update: {
+          description?: string | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          topic_id?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attachments_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance: {
+        Row: {
+          created_at: string
+          id: string
+          session_id: string
+          status: Database["public"]["Enums"]["attendance_status"]
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_id: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_id?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          date: string
+          day_of_week: string
+          end_time: string
+          id: string
+          start_time: string
+          subject_id: string
+          week_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          day_of_week: string
+          end_time: string
+          id?: string
+          start_time: string
+          subject_id: string
+          week_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          day_of_week?: string
+          end_time?: string
+          id?: string
+          start_time?: string
+          subject_id?: string
+          week_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          roll_number: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          roll_number: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          roll_number?: string
+        }
+        Relationships: []
+      }
+      subject_templates: {
+        Row: {
+          chapter_number: string
+          created_at: string
+          id: string
+          notes: string | null
+          sort_order: number
+          subject_id: string
+          topic_title: string
+        }
+        Insert: {
+          chapter_number: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          sort_order?: number
+          subject_id: string
+          topic_title: string
+        }
+        Update: {
+          chapter_number?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          sort_order?: number
+          subject_id?: string
+          topic_title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subject_templates_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subjects: {
+        Row: {
+          created_at: string
+          id: string
+          language_type: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language_type?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language_type?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      topics: {
+        Row: {
+          chapter_number: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          part_number: number | null
+          session_id: string
+          status: Database["public"]["Enums"]["topic_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chapter_number?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          part_number?: number | null
+          session_id: string
+          status?: Database["public"]["Enums"]["topic_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          chapter_number?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          part_number?: number | null
+          session_id?: string
+          status?: Database["public"]["Enums"]["topic_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topics_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weeks: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          label: string
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          label: string
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          label?: string
+          start_date?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +330,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      assessment_type: "Quiz" | "Assignment" | "Test"
+      attendance_status: "present" | "absent"
+      topic_status: "not_started" | "in_progress" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +459,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      assessment_type: ["Quiz", "Assignment", "Test"],
+      attendance_status: ["present", "absent"],
+      topic_status: ["not_started", "in_progress", "completed"],
+    },
   },
 } as const
