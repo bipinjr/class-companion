@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import type { Topic, Attachment, Assessment, Subject, Session } from "@/types";
+import type { Topic, Attachment, Assessment, Subject, Session, Student, AssessmentScore } from "@/types";
 
 interface Props {
   sessionId: string | null;
