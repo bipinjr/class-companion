@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessment_scores: {
+        Row: {
+          assessment_id: string
+          created_at: string
+          id: string
+          score: number | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_id: string
+          created_at?: string
+          id?: string
+          score?: number | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_id?: string
+          created_at?: string
+          id?: string
+          score?: number | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       assessments: {
         Row: {
           avg_score: number | null
@@ -22,6 +49,7 @@ export type Database = {
           id: string
           notes: string | null
           session_id: string
+          total_marks: number | null
           type: Database["public"]["Enums"]["assessment_type"]
         }
         Insert: {
@@ -31,6 +59,7 @@ export type Database = {
           id?: string
           notes?: string | null
           session_id: string
+          total_marks?: number | null
           type: Database["public"]["Enums"]["assessment_type"]
         }
         Update: {
@@ -40,6 +69,7 @@ export type Database = {
           id?: string
           notes?: string | null
           session_id?: string
+          total_marks?: number | null
           type?: Database["public"]["Enums"]["assessment_type"]
         }
         Relationships: [

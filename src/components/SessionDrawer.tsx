@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import type { Topic, Attachment, Assessment, Subject, Session } from "@/types";
+import type { Topic, Attachment, Assessment, Subject, Session, Student, AssessmentScore } from "@/types";
 
 interface Props {
   sessionId: string | null;
@@ -32,12 +32,13 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
     queryKey: ["session-full", sessionId],
     queryFn: async () => {
       if (!sessionId) return null;
-      const [sess, subj, top, att, asm] = await Promise.all([
+      const [sess, subj, top, att, asm, students] = await Promise.all([
         supabase.from("sessions").select("*").eq("id", sessionId).single(),
         supabase.from("subjects").select("*"),
         supabase.from("topics").select("*").eq("session_id", sessionId).maybeSingle(),
         supabase.from("attachments").select("*"),
         supabase.from("assessments").select("*").eq("session_id", sessionId).maybeSingle(),
+        supabase.from("students").select("*").order("roll_number"),
       ]);
       const session = sess.data as Session;
       const subjects = (subj.data ?? []) as Subject[];
@@ -48,6 +49,15 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
         attachments = ((att.data ?? []) as Attachment[]).filter(
           (a) => a.topic_id === topic!.id
         );
+      }
+      const assessment = asm.data as Assessment | null;
+      let scores: AssessmentScore[] = [];
+      if (assessment) {
+        const { data: sc } = await supabase
+          .from("assessment_scores")
+          .select("*")
+          .eq("assessment_id", assessment.id);
+        scores = (sc ?? []) as AssessmentScore[];
       }
       // Auto-suggest part N+1 if same chapter used previous day for this subject
       let suggestedPart: number | null = null;
@@ -75,7 +85,9 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
         subject,
         topic,
         attachments,
-        assessment: asm.data as Assessment | null,
+        assessment,
+        scores,
+        students: (students.data ?? []) as Student[],
         suggestedPart,
       };
     },
@@ -88,9 +100,9 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<Topic["status"]>("not_started");
   const [asmType, setAsmType] = useState<Assessment["type"] | "">("");
-  const [asmAvg, setAsmAvg] = useState("");
-  const [asmRate, setAsmRate] = useState("");
+  const [asmTotal, setAsmTotal] = useState("");
   const [asmNotes, setAsmNotes] = useState("");
+  const [scoreMap, setScoreMap] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [fileDesc, setFileDesc] = useState("");
 
@@ -104,10 +116,29 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
     setNotes(data.topic?.notes ?? "");
     setStatus(data.topic?.status ?? "not_started");
     setAsmType(data.assessment?.type ?? "");
-    setAsmAvg(data.assessment?.avg_score?.toString() ?? "");
-    setAsmRate(data.assessment?.completion_rate?.toString() ?? "");
+    setAsmTotal(data.assessment?.total_marks?.toString() ?? "");
     setAsmNotes(data.assessment?.notes ?? "");
+    const m: Record<string, string> = {};
+    data.scores.forEach((s) => {
+      m[s.student_id] = s.score?.toString() ?? "";
+    });
+    setScoreMap(m);
   }, [data]);
+
+  // Auto-calculated aggregates from individual scores
+  const totalNum = parseFloat(asmTotal);
+  const enteredScores = data?.students
+    .map((s) => ({ id: s.id, raw: scoreMap[s.id] }))
+    .filter((x) => x.raw !== undefined && x.raw !== "" && !isNaN(parseFloat(x.raw))) ?? [];
+  const studentCount = data?.students.length ?? 0;
+  const completionRate = studentCount > 0 ? (enteredScores.length / studentCount) * 100 : 0;
+  const avgScorePct =
+    enteredScores.length > 0 && !isNaN(totalNum) && totalNum > 0
+      ? (enteredScores.reduce((a, x) => a + parseFloat(x.raw), 0) /
+          enteredScores.length /
+          totalNum) *
+        100
+      : 0;
 
   const save = async () => {
     if (!data) return;
@@ -142,16 +173,31 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
       const asmPayload = {
         session_id: data.session.id,
         type: asmType as Assessment["type"],
-        avg_score: asmAvg ? parseFloat(asmAvg) : null,
-        completion_rate: asmRate ? parseFloat(asmRate) : null,
+        total_marks: asmTotal ? parseFloat(asmTotal) : null,
+        avg_score: enteredScores.length > 0 && totalNum > 0 ? Number(avgScorePct.toFixed(2)) : null,
+        completion_rate: studentCount > 0 ? Number(completionRate.toFixed(2)) : null,
         notes: asmNotes || null,
       };
+      let assessmentId = data.assessment?.id;
       if (data.assessment) {
         await supabase.from("assessments").update(asmPayload).eq("id", data.assessment.id);
       } else {
-        await supabase.from("assessments").insert(asmPayload);
+        const { data: ins } = await supabase.from("assessments").insert(asmPayload).select().single();
+        assessmentId = ins?.id;
+      }
+      // Upsert per-student scores
+      if (assessmentId) {
+        const rows = data.students.map((s) => {
+          const raw = scoreMap[s.id];
+          const val = raw !== undefined && raw !== "" && !isNaN(parseFloat(raw)) ? parseFloat(raw) : null;
+          return { assessment_id: assessmentId!, student_id: s.id, score: val };
+        });
+        await supabase
+          .from("assessment_scores")
+          .upsert(rows, { onConflict: "assessment_id,student_id" });
       }
     } else if (data.assessment) {
+      await supabase.from("assessment_scores").delete().eq("assessment_id", data.assessment.id);
       await supabase.from("assessments").delete().eq("id", data.assessment.id);
     }
 
@@ -342,16 +388,72 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
                   </Select>
                   {asmType && (
                     <>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label>Avg Score (%)</Label>
-                          <Input type="number" value={asmAvg} onChange={(e) => setAsmAvg(e.target.value)} />
+                      <div>
+                        <Label>Total Marks</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={asmTotal}
+                          onChange={(e) => setAsmTotal(e.target.value)}
+                          placeholder="e.g. 20"
+                        />
+                      </div>
+
+                      <div className="rounded-xl border border-border overflow-hidden">
+                        <div className="grid grid-cols-[80px_1fr_90px] bg-secondary/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          <div>Roll</div>
+                          <div>Student</div>
+                          <div className="text-right">Score</div>
                         </div>
-                        <div>
-                          <Label>Completion (%)</Label>
-                          <Input type="number" value={asmRate} onChange={(e) => setAsmRate(e.target.value)} />
+                        <div className="max-h-64 overflow-y-auto divide-y divide-border">
+                          {data.students.map((s) => (
+                            <div
+                              key={s.id}
+                              className="grid grid-cols-[80px_1fr_90px] items-center px-3 py-1.5 text-sm"
+                            >
+                              <div className="text-xs text-muted-foreground font-mono">
+                                {s.roll_number}
+                              </div>
+                              <div className="truncate">{s.full_name}</div>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={asmTotal || undefined}
+                                value={scoreMap[s.id] ?? ""}
+                                onChange={(e) =>
+                                  setScoreMap((m) => ({ ...m, [s.id]: e.target.value }))
+                                }
+                                className="h-8 text-right"
+                                placeholder="—"
+                              />
+                            </div>
+                          ))}
                         </div>
                       </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="neo-card p-3">
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                            Avg Score
+                          </div>
+                          <div className="text-lg font-bold text-primary">
+                            {enteredScores.length > 0 && totalNum > 0
+                              ? `${avgScorePct.toFixed(1)}%`
+                              : "—"}
+                          </div>
+                        </div>
+                        <div className="neo-card p-3">
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                            Completion
+                          </div>
+                          <div className="text-lg font-bold text-accent">
+                            {studentCount > 0
+                              ? `${completionRate.toFixed(0)}% (${enteredScores.length}/${studentCount})`
+                              : "—"}
+                          </div>
+                        </div>
+                      </div>
+
                       <Textarea
                         placeholder="Assessment notes"
                         value={asmNotes}

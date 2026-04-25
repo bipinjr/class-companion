@@ -95,11 +95,12 @@ export function AssessmentLog() {
       </div>
 
       <div className="neo-card overflow-hidden">
-        <div className="grid grid-cols-[110px_1fr_1fr_100px_100px_110px] bg-secondary/50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="grid grid-cols-[110px_1fr_1fr_100px_80px_90px_110px] bg-secondary/50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <div>Date</div>
           <div>Subject</div>
           <div>Topic</div>
           <div>Type</div>
+          <div className="text-center">Total</div>
           <div className="text-center">Avg</div>
           <div className="text-center">Completion</div>
         </div>
@@ -107,7 +108,7 @@ export function AssessmentLog() {
           {filtered.map(({ assessment, session, subject, topic }) => (
             <div
               key={assessment.id}
-              className="grid grid-cols-[110px_1fr_1fr_100px_100px_110px] px-4 py-3 items-center text-sm hover:bg-secondary/30"
+              className="grid grid-cols-[110px_1fr_1fr_100px_80px_90px_110px] px-4 py-3 items-center text-sm hover:bg-secondary/30"
             >
               <div className="text-xs text-muted-foreground">{session.date}</div>
               <div className="font-medium">{subject.name}</div>
@@ -117,11 +118,14 @@ export function AssessmentLog() {
                   {assessment.type}
                 </Badge>
               </div>
+              <div className="text-center text-muted-foreground">
+                {assessment.total_marks ?? "—"}
+              </div>
               <div className="text-center font-semibold text-primary">
-                {assessment.avg_score ?? "—"}%
+                {assessment.avg_score != null ? `${assessment.avg_score}%` : "—"}
               </div>
               <div className="text-center text-muted-foreground">
-                {assessment.completion_rate ?? "—"}%
+                {assessment.completion_rate != null ? `${assessment.completion_rate}%` : "—"}
               </div>
             </div>
           ))}
