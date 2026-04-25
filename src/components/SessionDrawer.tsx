@@ -32,12 +32,13 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
     queryKey: ["session-full", sessionId],
     queryFn: async () => {
       if (!sessionId) return null;
-      const [sess, subj, top, att, asm] = await Promise.all([
+      const [sess, subj, top, att, asm, students] = await Promise.all([
         supabase.from("sessions").select("*").eq("id", sessionId).single(),
         supabase.from("subjects").select("*"),
         supabase.from("topics").select("*").eq("session_id", sessionId).maybeSingle(),
         supabase.from("attachments").select("*"),
         supabase.from("assessments").select("*").eq("session_id", sessionId).maybeSingle(),
+        supabase.from("students").select("*").order("roll_number"),
       ]);
       const session = sess.data as Session;
       const subjects = (subj.data ?? []) as Subject[];
@@ -48,6 +49,15 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
         attachments = ((att.data ?? []) as Attachment[]).filter(
           (a) => a.topic_id === topic!.id
         );
+      }
+      const assessment = asm.data as Assessment | null;
+      let scores: AssessmentScore[] = [];
+      if (assessment) {
+        const { data: sc } = await supabase
+          .from("assessment_scores")
+          .select("*")
+          .eq("assessment_id", assessment.id);
+        scores = (sc ?? []) as AssessmentScore[];
       }
       // Auto-suggest part N+1 if same chapter used previous day for this subject
       let suggestedPart: number | null = null;
@@ -75,7 +85,9 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
         subject,
         topic,
         attachments,
-        assessment: asm.data as Assessment | null,
+        assessment,
+        scores,
+        students: (students.data ?? []) as Student[],
         suggestedPart,
       };
     },
