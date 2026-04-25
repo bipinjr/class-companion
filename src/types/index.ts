@@ -63,7 +63,15 @@ export interface Assessment {
   type: AssessmentType;
   avg_score: number | null;
   completion_rate: number | null;
+  total_marks: number | null;
   notes: string | null;
+}
+
+export interface AssessmentScore {
+  id: string;
+  assessment_id: string;
+  student_id: string;
+  score: number | null;
 }
 
 export interface SubjectTemplate {
