@@ -100,9 +100,9 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<Topic["status"]>("not_started");
   const [asmType, setAsmType] = useState<Assessment["type"] | "">("");
-  const [asmAvg, setAsmAvg] = useState("");
-  const [asmRate, setAsmRate] = useState("");
+  const [asmTotal, setAsmTotal] = useState("");
   const [asmNotes, setAsmNotes] = useState("");
+  const [scoreMap, setScoreMap] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [fileDesc, setFileDesc] = useState("");
 
@@ -116,10 +116,29 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
     setNotes(data.topic?.notes ?? "");
     setStatus(data.topic?.status ?? "not_started");
     setAsmType(data.assessment?.type ?? "");
-    setAsmAvg(data.assessment?.avg_score?.toString() ?? "");
-    setAsmRate(data.assessment?.completion_rate?.toString() ?? "");
+    setAsmTotal(data.assessment?.total_marks?.toString() ?? "");
     setAsmNotes(data.assessment?.notes ?? "");
+    const m: Record<string, string> = {};
+    data.scores.forEach((s) => {
+      m[s.student_id] = s.score?.toString() ?? "";
+    });
+    setScoreMap(m);
   }, [data]);
+
+  // Auto-calculated aggregates from individual scores
+  const totalNum = parseFloat(asmTotal);
+  const enteredScores = data?.students
+    .map((s) => ({ id: s.id, raw: scoreMap[s.id] }))
+    .filter((x) => x.raw !== undefined && x.raw !== "" && !isNaN(parseFloat(x.raw))) ?? [];
+  const studentCount = data?.students.length ?? 0;
+  const completionRate = studentCount > 0 ? (enteredScores.length / studentCount) * 100 : 0;
+  const avgScorePct =
+    enteredScores.length > 0 && !isNaN(totalNum) && totalNum > 0
+      ? (enteredScores.reduce((a, x) => a + parseFloat(x.raw), 0) /
+          enteredScores.length /
+          totalNum) *
+        100
+      : 0;
 
   const save = async () => {
     if (!data) return;
@@ -154,16 +173,31 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
       const asmPayload = {
         session_id: data.session.id,
         type: asmType as Assessment["type"],
-        avg_score: asmAvg ? parseFloat(asmAvg) : null,
-        completion_rate: asmRate ? parseFloat(asmRate) : null,
+        total_marks: asmTotal ? parseFloat(asmTotal) : null,
+        avg_score: enteredScores.length > 0 && totalNum > 0 ? Number(avgScorePct.toFixed(2)) : null,
+        completion_rate: studentCount > 0 ? Number(completionRate.toFixed(2)) : null,
         notes: asmNotes || null,
       };
+      let assessmentId = data.assessment?.id;
       if (data.assessment) {
         await supabase.from("assessments").update(asmPayload).eq("id", data.assessment.id);
       } else {
-        await supabase.from("assessments").insert(asmPayload);
+        const { data: ins } = await supabase.from("assessments").insert(asmPayload).select().single();
+        assessmentId = ins?.id;
+      }
+      // Upsert per-student scores
+      if (assessmentId) {
+        const rows = data.students.map((s) => {
+          const raw = scoreMap[s.id];
+          const val = raw !== undefined && raw !== "" && !isNaN(parseFloat(raw)) ? parseFloat(raw) : null;
+          return { assessment_id: assessmentId!, student_id: s.id, score: val };
+        });
+        await supabase
+          .from("assessment_scores")
+          .upsert(rows, { onConflict: "assessment_id,student_id" });
       }
     } else if (data.assessment) {
+      await supabase.from("assessment_scores").delete().eq("assessment_id", data.assessment.id);
       await supabase.from("assessments").delete().eq("id", data.assessment.id);
     }
 
