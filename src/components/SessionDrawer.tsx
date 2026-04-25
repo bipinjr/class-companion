@@ -388,16 +388,72 @@ export function SessionDrawer({ sessionId, onClose }: Props) {
                   </Select>
                   {asmType && (
                     <>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label>Avg Score (%)</Label>
-                          <Input type="number" value={asmAvg} onChange={(e) => setAsmAvg(e.target.value)} />
+                      <div>
+                        <Label>Total Marks</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={asmTotal}
+                          onChange={(e) => setAsmTotal(e.target.value)}
+                          placeholder="e.g. 20"
+                        />
+                      </div>
+
+                      <div className="rounded-xl border border-border overflow-hidden">
+                        <div className="grid grid-cols-[80px_1fr_90px] bg-secondary/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          <div>Roll</div>
+                          <div>Student</div>
+                          <div className="text-right">Score</div>
                         </div>
-                        <div>
-                          <Label>Completion (%)</Label>
-                          <Input type="number" value={asmRate} onChange={(e) => setAsmRate(e.target.value)} />
+                        <div className="max-h-64 overflow-y-auto divide-y divide-border">
+                          {data.students.map((s) => (
+                            <div
+                              key={s.id}
+                              className="grid grid-cols-[80px_1fr_90px] items-center px-3 py-1.5 text-sm"
+                            >
+                              <div className="text-xs text-muted-foreground font-mono">
+                                {s.roll_number}
+                              </div>
+                              <div className="truncate">{s.full_name}</div>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={asmTotal || undefined}
+                                value={scoreMap[s.id] ?? ""}
+                                onChange={(e) =>
+                                  setScoreMap((m) => ({ ...m, [s.id]: e.target.value }))
+                                }
+                                className="h-8 text-right"
+                                placeholder="—"
+                              />
+                            </div>
+                          ))}
                         </div>
                       </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="neo-card p-3">
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                            Avg Score
+                          </div>
+                          <div className="text-lg font-bold text-primary">
+                            {enteredScores.length > 0 && totalNum > 0
+                              ? `${avgScorePct.toFixed(1)}%`
+                              : "—"}
+                          </div>
+                        </div>
+                        <div className="neo-card p-3">
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                            Completion
+                          </div>
+                          <div className="text-lg font-bold text-accent">
+                            {studentCount > 0
+                              ? `${completionRate.toFixed(0)}% (${enteredScores.length}/${studentCount})`
+                              : "—"}
+                          </div>
+                        </div>
+                      </div>
+
                       <Textarea
                         placeholder="Assessment notes"
                         value={asmNotes}
