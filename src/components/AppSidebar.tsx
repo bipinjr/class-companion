@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Calendar,
+  CalendarDays,
   Users,
   TrendingUp,
   ClipboardList,
@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const items = [
-  { to: "/", label: "Weekly Planner", icon: Calendar },
+  { to: "/", label: "Weekly Planner", icon: CalendarDays },
   { to: "/attendance", label: "Attendance", icon: Users },
   { to: "/progress", label: "Progress", icon: TrendingUp },
   { to: "/assessments", label: "Assessments", icon: ClipboardList },
@@ -22,38 +22,49 @@ const items = [
 export function AppSidebar() {
   const location = useLocation();
   return (
-    <aside className="hidden md:flex w-60 shrink-0 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex-col">
-      <div className="px-5 py-6 flex items-center gap-3 border-b border-sidebar-border">
-        <div className="h-9 w-9 rounded-xl gradient-primary flex items-center justify-center">
-          <Sparkles className="h-5 w-5 text-primary-foreground" />
+    <aside className="hidden md:flex w-[280px] shrink-0 bg-sidebar text-sidebar-foreground flex-col h-screen sticky top-0">
+      {/* Header with bottom divider */}
+      <div className="px-4 py-5 flex items-center gap-3 border-b border-sidebar-border">
+        <div
+          className="h-9 w-9 rounded-[10px] flex items-center justify-center shrink-0"
+          style={{ backgroundColor: "#3B7FEB" }}
+        >
+          <Sparkles className="h-[18px] w-[18px] text-white" strokeWidth={2.25} />
         </div>
-        <div className="leading-tight">
-          <p className="text-sm font-semibold text-sidebar-accent-foreground">Smart Assistant</p>
-          <p className="text-[11px] text-sidebar-foreground/70">BCA · Single Class</p>
+        <div className="leading-tight min-w-0">
+          <p className="text-[16px] font-semibold text-white truncate">Smart Assistant</p>
+          <p className="text-[12px] text-sidebar-foreground/70 truncate">BCA · Single Class</p>
         </div>
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-1">
+
+      {/* Nav */}
+      <nav className="flex-1 px-4 py-4 flex flex-col gap-1">
         {items.map(({ to, label, icon: Icon }) => {
-          const active = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+          const active =
+            to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
           return (
             <NavLink
               key={to}
               to={to}
+              style={active ? { backgroundColor: "#3B7FEB" } : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all",
+                "flex items-center gap-3 rounded-[10px] text-[14px] font-medium transition-colors",
+                "px-[14px] py-[10px]",
                 active
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
-                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  ? "text-white"
+                  : "text-sidebar-foreground/70 hover:text-white hover:bg-sidebar-accent/60"
               )}
             >
-              <Icon className="h-4 w-4 shrink-0" />
-              <span className="font-medium">{label}</span>
+              <Icon className="h-[18px] w-[18px] shrink-0" />
+              <span>{label}</span>
             </NavLink>
           );
         })}
       </nav>
-      <div className="px-5 py-4 border-t border-sidebar-border">
-        <p className="text-[11px] text-sidebar-foreground/60">v1.0 · Demo data seeded</p>
+
+      {/* Footer version label */}
+      <div className="px-4 py-4 border-t border-sidebar-border">
+        <p className="text-[11px] text-sidebar-foreground/50">v1.0 · Demo data seeded</p>
       </div>
     </aside>
   );
