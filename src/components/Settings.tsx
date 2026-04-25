@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, Save } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Settings as SettingsIcon, Save, Lock, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,20 +17,29 @@ import { toast } from "sonner";
 
 export function Settings() {
   const qc = useQueryClient();
-  const [pin, setPin] = useState("");
+  const navigate = useNavigate();
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
   const [language, setLanguage] = useState("Kannada");
   const [weekLength, setWeekLength] = useState("6");
 
   useEffect(() => {
-    setPin(localStorage.getItem("tsa_pin") || "1234");
     setLanguage(localStorage.getItem("tsa_language") || "Kannada");
     setWeekLength(localStorage.getItem("tsa_week_length") || "6");
   }, []);
 
   const savePin = () => {
-    if (pin.length < 4) return toast.error("PIN must be at least 4 characters");
-    localStorage.setItem("tsa_pin", pin);
+    if (!/^\d{4}$/.test(newPin)) return toast.error("PIN must be exactly 4 digits");
+    if (newPin !== confirmPin) return toast.error("PINs do not match");
+    localStorage.setItem("tsa_pin", newPin);
+    setNewPin("");
+    setConfirmPin("");
     toast.success("PIN updated");
+  };
+
+  const lockNow = () => {
+    localStorage.setItem("tsa_locked", "true");
+    navigate("/lock", { replace: true });
   };
 
   const saveLanguage = async () => {
@@ -53,25 +63,50 @@ export function Settings() {
       </div>
 
       <div className="neo-card p-5 space-y-4">
-        <h2 className="font-semibold">Security</h2>
-        <div>
-          <Label>PIN code</Label>
-          <div className="flex gap-2 mt-1">
-            <Input
-              type="text"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              maxLength={8}
-              className="font-mono"
-            />
-            <Button onClick={savePin} className="gradient-primary text-primary-foreground border-0">
-              <Save className="h-4 w-4 mr-1" /> Save
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Used to unlock the app. Stored locally on this device.
-          </p>
+        <h2 className="font-semibold flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-primary" /> Security
+        </h2>
+        <div className="flex items-center gap-3 text-sm">
+          <span className="text-muted-foreground">Current PIN:</span>
+          <span className="font-mono px-2 py-0.5 rounded bg-secondary tracking-[0.3em]">••••</span>
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <Label>New PIN</Label>
+            <Input
+              type="password"
+              inputMode="numeric"
+              maxLength={4}
+              value={newPin}
+              onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+              className="font-mono tracking-[0.3em]"
+              placeholder="••••"
+            />
+          </div>
+          <div>
+            <Label>Confirm PIN</Label>
+            <Input
+              type="password"
+              inputMode="numeric"
+              maxLength={4}
+              value={confirmPin}
+              onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
+              className="font-mono tracking-[0.3em]"
+              placeholder="••••"
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={savePin} className="gradient-primary text-primary-foreground border-0">
+            <Save className="h-4 w-4 mr-1" /> Save PIN
+          </Button>
+          <Button onClick={lockNow} variant="outline">
+            <Lock className="h-4 w-4 mr-1" /> Lock App Now
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          PIN is stored locally on this device. Locking will return you to the lock screen.
+        </p>
       </div>
 
       <div className="neo-card p-5 space-y-4">
