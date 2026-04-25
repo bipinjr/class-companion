@@ -33,13 +33,19 @@ function KeyButton({
   children,
   onClick,
   disabled,
-  ...rest
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  "aria-label": ariaLabel,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  "aria-label"?: string;
+}) {
   return (
     <motion.button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
       whileTap={{ scale: 0.92 }}
       whileHover={{ scale: 1.04 }}
       transition={{ type: "spring", stiffness: 400, damping: 18 }}
@@ -50,7 +56,6 @@ function KeyButton({
         "active:shadow-[0_0_24px_rgba(56,189,248,0.5)]",
         "transition-colors disabled:opacity-40 disabled:cursor-not-allowed select-none"
       )}
-      {...rest}
     >
       {children}
     </motion.button>
