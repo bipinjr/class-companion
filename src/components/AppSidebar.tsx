@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GlowCard } from "@/components/ui/spotlight-card";
 
 const items = [
   { to: "/", label: "Weekly Planner", icon: CalendarDays },
@@ -38,7 +39,7 @@ export function AppSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-4 py-4 flex flex-col gap-1">
+      <nav className="px-4 py-4 flex flex-col gap-1">
         {items.map(({ to, label, icon: Icon }) => {
           const active =
             to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
@@ -61,6 +62,9 @@ export function AppSidebar() {
           );
         })}
       </nav>
+
+      {/* Spotlight glow card filling empty space */}
+      <GlowCard glowColor="blue" className="flex-1 my-4 mx-2 min-h-0" />
 
       {/* Footer version label */}
       <div className="px-4 py-4 border-t border-sidebar-border">
