@@ -23,7 +23,7 @@ const items = [
 export function AppSidebar() {
   const location = useLocation();
   return (
-    <aside className="hidden md:flex w-[280px] shrink-0 bg-black/40 backdrop-blur-md border-r border-white/10 text-sidebar-foreground flex-col h-screen sticky top-0 z-10">
+    <aside className="hidden md:flex w-[280px] shrink-0 bg-black/50 backdrop-blur-sm border-r border-white/10 text-sidebar-foreground flex-col h-screen sticky top-0 z-10">
       {/* Header with bottom divider */}
       <div className="px-4 py-5 flex items-center gap-3 border-b border-sidebar-border">
         <div

@@ -1,16 +1,19 @@
 import { AppSidebar } from "./AppSidebar";
-import CinematicThemeSwitcher from "./ui/cinematic-theme-switcher";
-import { AnimatedBackground } from "./ui/background-paper-shaders";
+import { Starfield } from "./ui/starfield-1";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex w-full bg-transparent relative">
-      <AnimatedBackground />
+      <div className="fixed inset-0 -z-10 bg-black">
+        <Starfield
+          starColor="rgba(255,255,255,0.7)"
+          bgColor="rgba(0,0,0,1)"
+          speed={0.8}
+          quantity={400}
+        />
+      </div>
       <AppSidebar />
       <main className="flex-1 min-w-0 overflow-x-auto relative">
-        <div className="absolute top-4 right-6 z-40">
-          <CinematicThemeSwitcher />
-        </div>
         {children}
       </main>
     </div>
