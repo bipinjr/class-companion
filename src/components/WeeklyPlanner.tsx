@@ -174,9 +174,9 @@ export function WeeklyPlanner() {
       </div>
 
       {/* Grid */}
-      <div className="neo-card overflow-hidden">
-        <div className="grid grid-cols-[80px_repeat(6,minmax(180px,1fr))] bg-secondary/50">
-          <div className="p-3 text-xs font-semibold text-muted-foreground border-r border-border">
+      <div className="rounded-2xl overflow-hidden border border-white/10 bg-black/20 backdrop-blur-md shadow-elevated">
+        <div className="grid grid-cols-[80px_repeat(6,minmax(180px,1fr))] bg-white/5 backdrop-blur-sm">
+          <div className="p-3 text-xs font-semibold text-muted-foreground border-r border-white/10">
             Time
           </div>
           {DAYS.map((day) => {
@@ -193,8 +193,8 @@ export function WeeklyPlanner() {
               <div
                 key={day}
                 className={cn(
-                  "p-3 text-center border-r border-border last:border-r-0 transition-colors",
-                  isToday && "bg-primary/10"
+                  "p-3 text-center border-r border-white/10 last:border-r-0 transition-colors",
+                  isToday && "bg-primary/15"
                 )}
               >
                 <div
@@ -217,9 +217,9 @@ export function WeeklyPlanner() {
         {TIME_SLOTS.map((time) => (
           <div
             key={time}
-            className="grid grid-cols-[80px_repeat(6,minmax(180px,1fr))] border-t border-border min-h-[140px]"
+            className="grid grid-cols-[80px_repeat(6,minmax(180px,1fr))] border-t border-white/10 min-h-[140px]"
           >
-            <div className="p-3 text-xs font-medium text-muted-foreground border-r border-border bg-secondary/30 flex items-start">
+            <div className="p-3 text-xs font-medium text-muted-foreground border-r border-white/10 bg-white/5 flex items-start">
               {time}
             </div>
             {DAYS.map((day) => {
@@ -228,7 +228,7 @@ export function WeeklyPlanner() {
                 return (
                   <div
                     key={day + time}
-                    className="border-r border-border last:border-r-0 p-2"
+                    className="border-r border-white/10 last:border-r-0 p-2"
                   />
                 );
               }
@@ -236,7 +236,7 @@ export function WeeklyPlanner() {
                 return (
                   <div
                     key={day + time}
-                    className="border-r border-border last:border-r-0 p-2 opacity-30"
+                    className="border-r border-white/10 last:border-r-0 p-2 opacity-30"
                   />
                 );
               }
@@ -244,14 +244,14 @@ export function WeeklyPlanner() {
               return (
                 <div
                   key={day + time}
-                  className="border-r border-border last:border-r-0 p-2"
+                  className="border-r border-white/10 last:border-r-0 p-2"
                 >
                   <motion.button
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setOpenSessionId(cell.session.id)}
                     className={cn(
-                      "w-full text-left h-full neo-card p-3 flex flex-col gap-1.5",
+                      "w-full text-left h-full rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors p-3 flex flex-col gap-1.5",
                       isCompleted && "opacity-60"
                     )}
                   >
