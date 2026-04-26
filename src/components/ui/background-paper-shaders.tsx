@@ -17,10 +17,12 @@ export function AnimatedBackground() {
       <div className="absolute inset-0 opacity-[0.18] mix-blend-screen">
         <DotOrbit
           className="absolute inset-0 w-full h-full"
+          colorBack="#00000000"
           colors={["#3b7feb", "#7c3aed", "#22d3ee"]}
           speed={0.4}
-          dotSize={0.6}
-          spacing={0.18}
+          size={0.35}
+          sizeRange={0.4}
+          spreading={0.6}
         />
       </div>
 
