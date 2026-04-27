@@ -35,8 +35,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function WeeklyPlanner() {
   const { data: weeks = [] } = useAllWeeks();
+  const navigate = useNavigate();
   const [weekIdx, setWeekIdx] = useState<number | null>(null);
-  const [openSessionId, setOpenSessionId] = useState<string | null>(null);
   const [filterSubject, setFilterSubject] = useState<string>("all");
   const [showExport, setShowExport] = useState(false);
 
