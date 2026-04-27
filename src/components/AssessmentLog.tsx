@@ -29,6 +29,7 @@ type Row = {
 export function AssessmentLog() {
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterType, setFilterType] = useState("all");
+  const [selected, setSelected] = useState<Row | null>(null);
 
   const { data } = useQuery({
     queryKey: ["assessments-log"],
