@@ -249,7 +249,7 @@ export function WeeklyPlanner() {
                   <motion.button
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setOpenSessionId(cell.session.id)}
+                    onClick={() => navigate(`/planner/${cell.session.id}`)}
                     className={cn(
                       "w-full text-left h-full rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors p-3 flex flex-col gap-1.5",
                       isCompleted && "opacity-60"
