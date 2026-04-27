@@ -303,10 +303,6 @@ export function WeeklyPlanner() {
         ))}
       </div>
 
-      <SessionDrawer
-        sessionId={openSessionId}
-        onClose={() => setOpenSessionId(null)}
-      />
       {showExport && currentWeek && planData && (
         <ExportTools
           weekLabel={currentWeek.label}
