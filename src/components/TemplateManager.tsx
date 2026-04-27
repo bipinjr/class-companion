@@ -1,24 +1,11 @@
-import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileText, Plus, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { FileText, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { toast } from "sonner";
 import type { Subject, SubjectTemplate } from "@/types";
 
 export function TemplateManager() {
-  const qc = useQueryClient();
-  const [selectedSubject, setSelectedSubject] = useState<string>("");
-  const [newChapter, setNewChapter] = useState("");
-  const [newTitle, setNewTitle] = useState("");
+  const navigate = useNavigate();
 
   const { data } = useQuery({
     queryKey: ["templates-all"],
@@ -35,29 +22,10 @@ export function TemplateManager() {
   });
 
   const subjects = data?.subjects ?? [];
-  const activeId = selectedSubject || subjects[0]?.id || "";
-  const templates = (data?.templates ?? []).filter((t) => t.subject_id === activeId);
-
-  const addEntry = async () => {
-    if (!newChapter.trim() || !newTitle.trim() || !activeId) return;
-    const maxOrder = templates.reduce((m, t) => Math.max(m, t.sort_order), 0);
-    const { error } = await supabase.from("subject_templates").insert({
-      subject_id: activeId,
-      chapter_number: newChapter.trim(),
-      topic_title: newTitle.trim(),
-      sort_order: maxOrder + 1,
-    });
-    if (error) return toast.error(error.message);
-    setNewChapter("");
-    setNewTitle("");
-    qc.invalidateQueries({ queryKey: ["templates-all"] });
-    toast.success("Template entry added");
-  };
-
-  const removeEntry = async (id: string) => {
-    await supabase.from("subject_templates").delete().eq("id", id);
-    qc.invalidateQueries({ queryKey: ["templates-all"] });
-  };
+  const templates = data?.templates ?? [];
+  const countBySubject = (id: string) => templates.filter((t) => t.subject_id === id).length;
+  const chaptersBySubject = (id: string) =>
+    new Set(templates.filter((t) => t.subject_id === id).map((t) => t.chapter_number)).size;
 
   return (
     <div className="p-6 space-y-5">
@@ -65,66 +33,39 @@ export function TemplateManager() {
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <FileText className="h-6 w-6 text-primary" /> Subject Templates
         </h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Default chapter/topic structures used to populate sessions quickly
-        </p>
+        <p className="text-sm text-muted-foreground mt-0.5">Pick a subject to manage its chapter & topic template</p>
       </div>
 
-      <div className="neo-card p-4">
-        <Select value={activeId} onValueChange={setSelectedSubject}>
-          <SelectTrigger className="w-full sm:w-[320px]">
-            <SelectValue placeholder="Choose a subject" />
-          </SelectTrigger>
-          <SelectContent>
-            {subjects.map((s) => (
-              <SelectItem key={s.id} value={s.id}>
-                {s.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="neo-card overflow-hidden">
-        <div className="grid grid-cols-[100px_1fr_60px] bg-secondary/50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          <div>Chapter</div>
-          <div>Topic Title</div>
-          <div></div>
-        </div>
-        <div className="divide-y divide-border">
-          {templates.map((t) => (
-            <div key={t.id} className="grid grid-cols-[100px_1fr_60px] px-4 py-3 items-center text-sm">
-              <div className="font-mono text-muted-foreground">Ch {t.chapter_number}</div>
-              <div className="font-medium">{t.topic_title}</div>
-              <div className="flex justify-end">
-                <Button variant="ghost" size="icon" onClick={() => removeEntry(t.id)}>
-                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                </Button>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {subjects.map((s) => (
+          <button
+            type="button"
+            key={s.id}
+            onClick={() => navigate(`/templates/${s.id}`)}
+            className="text-left rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 hover:bg-white/10 hover:border-white/20 transition-colors group"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="font-semibold text-base">{s.name}</h3>
+                {s.language_type && <p className="text-xs text-muted-foreground mt-0.5">{s.language_type}</p>}
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <div>
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">Chapters</div>
+                <div className="text-xl font-bold mt-1">{chaptersBySubject(s.id)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">Entries</div>
+                <div className="text-xl font-bold mt-1 text-primary">{countBySubject(s.id)}</div>
               </div>
             </div>
-          ))}
-          {templates.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-muted-foreground italic">
-              No template entries yet
-            </div>
-          )}
-        </div>
-        <div className="grid grid-cols-[100px_1fr_60px] gap-2 p-4 border-t border-border bg-secondary/30">
-          <Input
-            placeholder="Ch #"
-            value={newChapter}
-            onChange={(e) => setNewChapter(e.target.value)}
-          />
-          <Input
-            placeholder="New topic title"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addEntry()}
-          />
-          <Button onClick={addEntry} className="gradient-primary text-primary-foreground border-0">
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+          </button>
+        ))}
+        {subjects.length === 0 && (
+          <p className="text-sm text-muted-foreground italic col-span-full">No subjects yet.</p>
+        )}
       </div>
     </div>
   );
