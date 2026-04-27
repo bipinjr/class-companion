@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, Calendar, BookOpen, FileText, Target, TrendingUp, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
@@ -10,7 +10,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import type { Assessment, Session, Subject, Topic } from "@/types";
+
+type Row = {
+  assessment: Assessment;
+  session: Session;
+  subject: Subject;
+  topic?: Topic;
+};
 
 export function AssessmentLog() {
   const [filterSubject, setFilterSubject] = useState("all");
