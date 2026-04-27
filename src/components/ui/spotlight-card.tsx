@@ -87,13 +87,14 @@ const GlowCard: React.FC<GlowCardProps> = ({
       inset: calc(var(--border-size) * -1);
       border: var(--border-size) solid transparent;
       border-radius: calc(var(--radius) * 1px);
-      background-attachment: fixed;
-      background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+      background-size: 100% 100%;
       background-repeat: no-repeat;
-      background-position: 50% 50%;
+      background-position: 0 0;
       mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
       mask-clip: padding-box, border-box;
       mask-composite: intersect;
+      opacity: var(--active, 0);
+      transition: opacity 200ms ease;
     }
     [data-glow]::before {
       background-image: radial-gradient(
