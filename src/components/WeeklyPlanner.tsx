@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Paperclip, BarChart3, Filter, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { Subject, Session, Topic, Assessment, Attachment } from "@/types";
-import { SessionDrawer } from "./SessionDrawer";
 import { ExportTools } from "./ExportTools";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
