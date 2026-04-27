@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Paperclip, BarChart3, Filter, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { Subject, Session, Topic, Assessment, Attachment } from "@/types";
-import { SessionDrawer } from "./SessionDrawer";
 import { ExportTools } from "./ExportTools";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -35,8 +35,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function WeeklyPlanner() {
   const { data: weeks = [] } = useAllWeeks();
+  const navigate = useNavigate();
   const [weekIdx, setWeekIdx] = useState<number | null>(null);
-  const [openSessionId, setOpenSessionId] = useState<string | null>(null);
   const [filterSubject, setFilterSubject] = useState<string>("all");
   const [showExport, setShowExport] = useState(false);
 
@@ -249,7 +249,7 @@ export function WeeklyPlanner() {
                   <motion.button
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setOpenSessionId(cell.session.id)}
+                    onClick={() => navigate(`/planner/${cell.session.id}`)}
                     className={cn(
                       "w-full text-left h-full rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors p-3 flex flex-col gap-1.5",
                       isCompleted && "opacity-60"
@@ -303,10 +303,6 @@ export function WeeklyPlanner() {
         ))}
       </div>
 
-      <SessionDrawer
-        sessionId={openSessionId}
-        onClose={() => setOpenSessionId(null)}
-      />
       {showExport && currentWeek && planData && (
         <ExportTools
           weekLabel={currentWeek.label}

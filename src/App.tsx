@@ -13,6 +13,11 @@ import { TemplateManager } from "@/components/TemplateManager";
 import { Settings } from "@/components/Settings";
 import LockScreen from "@/pages/LockScreen";
 import Welcome from "@/pages/Welcome";
+import AssessmentDetail from "@/pages/AssessmentDetail";
+import StudentDetail from "@/pages/StudentDetail";
+import SubjectDetail from "@/pages/SubjectDetail";
+import TemplateSubjectDetail from "@/pages/TemplateSubjectDetail";
+import SessionDetail from "@/pages/SessionDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,10 +58,15 @@ const App = () => (
                 <AppLayout>
                   <Routes>
                     <Route path="/" element={<WeeklyPlanner />} />
+                    <Route path="/planner/:id" element={<SessionDetail />} />
                     <Route path="/attendance" element={<AttendanceTable />} />
+                    <Route path="/attendance/student/:id" element={<StudentDetail />} />
                     <Route path="/progress" element={<SubjectProgress />} />
+                    <Route path="/progress/:id" element={<SubjectDetail />} />
                     <Route path="/assessments" element={<AssessmentLog />} />
+                    <Route path="/assessments/:id" element={<AssessmentDetail />} />
                     <Route path="/templates" element={<TemplateManager />} />
+                    <Route path="/templates/:id" element={<TemplateSubjectDetail />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
