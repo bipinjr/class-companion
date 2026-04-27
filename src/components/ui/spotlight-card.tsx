@@ -22,23 +22,31 @@ const GlowCard: React.FC<GlowCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const syncPointer = (e: PointerEvent) => {
-      const { clientX: x, clientY: y } = e;
-      if (cardRef.current) {
-        cardRef.current.style.setProperty('--x', x.toFixed(2));
-        cardRef.current.style.setProperty(
-          '--xp',
-          (x / window.innerWidth).toFixed(2)
-        );
-        cardRef.current.style.setProperty('--y', y.toFixed(2));
-        cardRef.current.style.setProperty(
-          '--yp',
-          (y / window.innerHeight).toFixed(2)
-        );
-      }
+    const el = cardRef.current;
+    if (!el) return;
+
+    const handleMove = (e: PointerEvent) => {
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      el.style.setProperty('--x', x.toFixed(2));
+      el.style.setProperty('--xp', (x / rect.width).toFixed(2));
+      el.style.setProperty('--y', y.toFixed(2));
+      el.style.setProperty('--yp', (y / rect.height).toFixed(2));
+      el.style.setProperty('--active', '1');
     };
-    document.addEventListener('pointermove', syncPointer);
-    return () => document.removeEventListener('pointermove', syncPointer);
+    const handleLeave = () => {
+      el.style.setProperty('--active', '0');
+    };
+
+    el.addEventListener('pointermove', handleMove);
+    el.addEventListener('pointerenter', handleMove);
+    el.addEventListener('pointerleave', handleLeave);
+    return () => {
+      el.removeEventListener('pointermove', handleMove);
+      el.removeEventListener('pointerenter', handleMove);
+      el.removeEventListener('pointerleave', handleLeave);
+    };
   }, []);
 
   const { base, spread } = glowColorMap[glowColor];
