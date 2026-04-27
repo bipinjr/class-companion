@@ -39,32 +39,30 @@ export function AppSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="px-4 py-4 flex flex-col gap-1">
+      <nav className="px-4 py-4 flex flex-col gap-1 flex-1">
         {items.map(({ to, label, icon: Icon }) => {
           const active =
             to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
           return (
-            <NavLink
-              key={to}
-              to={to}
-              style={active ? { backgroundColor: "#3B7FEB" } : undefined}
-              className={cn(
-                "flex items-center gap-3 rounded-[10px] text-[14px] font-medium transition-colors",
-                "px-[14px] py-[10px]",
-                active
-                  ? "text-white"
-                  : "text-sidebar-foreground/70 hover:text-white hover:bg-sidebar-accent/60"
-              )}
-            >
-              <Icon className="h-[18px] w-[18px] shrink-0" />
-              <span>{label}</span>
-            </NavLink>
+            <GlowCard key={to} glowColor="blue" className="!rounded-[10px]">
+              <NavLink
+                to={to}
+                style={active ? { backgroundColor: "#3B7FEB" } : undefined}
+                className={cn(
+                  "flex items-center gap-3 rounded-[10px] text-[14px] font-medium transition-colors relative z-[1]",
+                  "px-[14px] py-[10px]",
+                  active
+                    ? "text-white"
+                    : "text-sidebar-foreground/70 hover:text-white"
+                )}
+              >
+                <Icon className="h-[18px] w-[18px] shrink-0" />
+                <span>{label}</span>
+              </NavLink>
+            </GlowCard>
           );
         })}
       </nav>
-
-      {/* Spotlight glow card filling empty space */}
-      <GlowCard glowColor="blue" className="flex-1 my-4 mx-2 min-h-0" />
 
       {/* Footer version label */}
       <div className="px-4 py-4 border-t border-sidebar-border">

@@ -22,23 +22,31 @@ const GlowCard: React.FC<GlowCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const syncPointer = (e: PointerEvent) => {
-      const { clientX: x, clientY: y } = e;
-      if (cardRef.current) {
-        cardRef.current.style.setProperty('--x', x.toFixed(2));
-        cardRef.current.style.setProperty(
-          '--xp',
-          (x / window.innerWidth).toFixed(2)
-        );
-        cardRef.current.style.setProperty('--y', y.toFixed(2));
-        cardRef.current.style.setProperty(
-          '--yp',
-          (y / window.innerHeight).toFixed(2)
-        );
-      }
+    const el = cardRef.current;
+    if (!el) return;
+
+    const handleMove = (e: PointerEvent) => {
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      el.style.setProperty('--x', x.toFixed(2));
+      el.style.setProperty('--xp', (x / rect.width).toFixed(2));
+      el.style.setProperty('--y', y.toFixed(2));
+      el.style.setProperty('--yp', (y / rect.height).toFixed(2));
+      el.style.setProperty('--active', '1');
     };
-    document.addEventListener('pointermove', syncPointer);
-    return () => document.removeEventListener('pointermove', syncPointer);
+    const handleLeave = () => {
+      el.style.setProperty('--active', '0');
+    };
+
+    el.addEventListener('pointermove', handleMove);
+    el.addEventListener('pointerenter', handleMove);
+    el.addEventListener('pointerleave', handleLeave);
+    return () => {
+      el.removeEventListener('pointermove', handleMove);
+      el.removeEventListener('pointerenter', handleMove);
+      el.removeEventListener('pointerleave', handleLeave);
+    };
   }, []);
 
   const { base, spread } = glowColorMap[glowColor];
@@ -48,23 +56,23 @@ const GlowCard: React.FC<GlowCardProps> = ({
     '--spread': spread,
     '--radius': '14',
     '--border': '2',
-    '--backdrop': 'hsl(0 0% 60% / 0.12)',
-    '--backup-border': 'var(--backdrop)',
-    '--size': '200',
+    '--backdrop': 'transparent',
+    '--backup-border': 'transparent',
+    '--size': '150',
     '--outer': '1',
     '--border-size': 'calc(var(--border, 2) * 1px)',
     '--spotlight-size': 'calc(var(--size, 150) * 1px)',
     '--hue': 'calc(var(--base) + (var(--xp, 0) * var(--spread, 0)))',
+    '--active': '0',
     backgroundImage: `radial-gradient(
       var(--spotlight-size) var(--spotlight-size) at
       calc(var(--x, 0) * 1px)
       calc(var(--y, 0) * 1px),
-      hsl(var(--hue, 210) calc(var(--saturation, 100) * 1%) calc(var(--lightness, 70) * 1%) / var(--bg-spot-opacity, 0.1)), transparent
+      hsl(var(--hue, 210) calc(var(--saturation, 100) * 1%) calc(var(--lightness, 70) * 1%) / calc(var(--bg-spot-opacity, 0.15) * var(--active, 0))), transparent
     )`,
     backgroundColor: 'var(--backdrop, transparent)',
-    backgroundSize: 'calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)))',
-    backgroundPosition: '50% 50%',
-    backgroundAttachment: 'fixed',
+    backgroundSize: '100% 100%',
+    backgroundPosition: '0 0',
     border: 'var(--border-size) solid var(--backup-border)',
     position: 'relative',
     touchAction: 'none',
@@ -79,13 +87,14 @@ const GlowCard: React.FC<GlowCardProps> = ({
       inset: calc(var(--border-size) * -1);
       border: var(--border-size) solid transparent;
       border-radius: calc(var(--radius) * 1px);
-      background-attachment: fixed;
-      background-size: calc(100% + (2 * var(--border-size))) calc(100% + (2 * var(--border-size)));
+      background-size: 100% 100%;
       background-repeat: no-repeat;
-      background-position: 50% 50%;
+      background-position: 0 0;
       mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
       mask-clip: padding-box, border-box;
       mask-composite: intersect;
+      opacity: var(--active, 0);
+      transition: opacity 200ms ease;
     }
     [data-glow]::before {
       background-image: radial-gradient(
