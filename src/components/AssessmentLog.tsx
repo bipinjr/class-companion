@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, Calendar, BookOpen, FileText, Target, TrendingUp, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
@@ -10,11 +10,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import type { Assessment, Session, Subject, Topic } from "@/types";
+
+type Row = {
+  assessment: Assessment;
+  session: Session;
+  subject: Subject;
+  topic?: Topic;
+};
 
 export function AssessmentLog() {
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterType, setFilterType] = useState("all");
+  const [selected, setSelected] = useState<Row | null>(null);
 
   const { data } = useQuery({
     queryKey: ["assessments-log"],
@@ -105,30 +120,35 @@ export function AssessmentLog() {
           <div className="text-center">Completion</div>
         </div>
         <div className="divide-y divide-border max-h-[60vh] overflow-y-auto">
-          {filtered.map(({ assessment, session, subject, topic }) => (
-            <div
-              key={assessment.id}
-              className="grid grid-cols-[110px_1fr_1fr_100px_80px_90px_110px] px-4 py-3 items-center text-sm hover:bg-secondary/30"
-            >
-              <div className="text-xs text-muted-foreground">{session.date}</div>
-              <div className="font-medium">{subject.name}</div>
-              <div className="text-muted-foreground line-clamp-1">{topic?.title ?? "—"}</div>
-              <div>
-                <Badge variant="outline" className="text-[11px]">
-                  {assessment.type}
-                </Badge>
-              </div>
-              <div className="text-center text-muted-foreground">
-                {assessment.total_marks ?? "—"}
-              </div>
-              <div className="text-center font-semibold text-primary">
-                {assessment.avg_score != null ? `${assessment.avg_score}%` : "—"}
-              </div>
-              <div className="text-center text-muted-foreground">
-                {assessment.completion_rate != null ? `${assessment.completion_rate}%` : "—"}
-              </div>
-            </div>
-          ))}
+          {filtered.map((row) => {
+            const { assessment, session, subject, topic } = row;
+            return (
+              <button
+                type="button"
+                key={assessment.id}
+                onClick={() => setSelected(row)}
+                className="w-full text-left grid grid-cols-[110px_1fr_1fr_100px_80px_90px_110px] px-4 py-3 items-center text-sm hover:bg-secondary/40 transition-colors focus:outline-none focus:bg-secondary/40 cursor-pointer"
+              >
+                <div className="text-xs text-muted-foreground">{session.date}</div>
+                <div className="font-medium">{subject.name}</div>
+                <div className="text-muted-foreground line-clamp-1">{topic?.title ?? "—"}</div>
+                <div>
+                  <Badge variant="outline" className="text-[11px]">
+                    {assessment.type}
+                  </Badge>
+                </div>
+                <div className="text-center text-muted-foreground">
+                  {assessment.total_marks ?? "—"}
+                </div>
+                <div className="text-center font-semibold text-primary">
+                  {assessment.avg_score != null ? `${assessment.avg_score}%` : "—"}
+                </div>
+                <div className="text-center text-muted-foreground">
+                  {assessment.completion_rate != null ? `${assessment.completion_rate}%` : "—"}
+                </div>
+              </button>
+            );
+          })}
           {filtered.length === 0 && (
             <div className="px-4 py-10 text-center text-sm text-muted-foreground italic">
               No assessments match your filters
@@ -136,6 +156,83 @@ export function AssessmentLog() {
           )}
         </div>
       </div>
+
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-w-lg bg-black/80 backdrop-blur-xl border-white/10">
+          {selected && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant="outline" className="text-[11px]">
+                    {selected.assessment.type}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {selected.session.date}
+                  </span>
+                </div>
+                <DialogTitle className="text-xl">
+                  {selected.subject.name}
+                </DialogTitle>
+                <DialogDescription>
+                  {selected.topic?.title ?? "No topic linked to this session"}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="grid grid-cols-3 gap-3 mt-2">
+                <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                  <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <Target className="h-3 w-3" /> Total
+                  </div>
+                  <div className="text-lg font-semibold mt-1">
+                    {selected.assessment.total_marks ?? "—"}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                  <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <TrendingUp className="h-3 w-3" /> Average
+                  </div>
+                  <div className="text-lg font-semibold mt-1 text-primary">
+                    {selected.assessment.avg_score != null
+                      ? `${selected.assessment.avg_score}%`
+                      : "—"}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                  <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <CheckCircle2 className="h-3 w-3" /> Completion
+                  </div>
+                  <div className="text-lg font-semibold mt-1">
+                    {selected.assessment.completion_rate != null
+                      ? `${selected.assessment.completion_rate}%`
+                      : "—"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-2 text-sm">
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <Calendar className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>
+                    Session date: <span className="text-foreground">{selected.session.date}</span>
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <BookOpen className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>
+                    Subject: <span className="text-foreground">{selected.subject.name}</span>
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 text-muted-foreground">
+                  <FileText className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>
+                    Topic: <span className="text-foreground">{selected.topic?.title ?? "—"}</span>
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
