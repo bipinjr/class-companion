@@ -125,16 +125,16 @@ export function WeeklyPlanner() {
   }, [planData]);
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-3 sm:p-6 space-y-5">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Weekly Planner</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Weekly Planner</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             {currentWeek?.label ?? "Loading…"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="icon"
@@ -151,10 +151,10 @@ export function WeeklyPlanner() {
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-2 ml-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 flex-1 sm:flex-none sm:ml-2 min-w-0">
+            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
             <Select value={filterSubject} onValueChange={setFilterSubject}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -173,8 +173,9 @@ export function WeeklyPlanner() {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="rounded-2xl overflow-hidden border border-white/10 bg-black/20 backdrop-blur-md shadow-elevated">
+      {/* Grid (horizontally scrollable on small screens) */}
+      <div className="rounded-2xl overflow-x-auto border border-white/10 bg-black/20 backdrop-blur-md shadow-elevated">
+        <div className="min-w-[900px]">
         <div className="grid grid-cols-[80px_repeat(6,minmax(180px,1fr))] bg-white/5 backdrop-blur-sm">
           <div className="p-3 text-xs font-semibold text-muted-foreground border-r border-white/10">
             Time
