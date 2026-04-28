@@ -100,7 +100,7 @@ export function AttendanceTable() {
   }, [studentStats]);
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-3 sm:p-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <Users className="h-6 w-6 text-primary" /> Attendance
@@ -138,7 +138,7 @@ export function AttendanceTable() {
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
-        <div className="grid grid-cols-[100px_1fr_120px_140px_30px] bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="hidden sm:grid grid-cols-[100px_1fr_120px_140px_30px] bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <div>Roll No</div><div>Name</div><div className="text-center">Overall %</div><div className="text-center">This Session</div><div></div>
         </div>
         <div className="divide-y divide-white/10 max-h-[60vh] overflow-y-auto">
@@ -148,16 +148,16 @@ export function AttendanceTable() {
             const stat = studentStats.get(s.id);
             const pct = stat && stat.total ? Math.round((stat.present / stat.total) * 100) : 0;
             return (
-              <div key={s.id} className="grid grid-cols-[100px_1fr_120px_140px_30px] px-4 py-3 items-center hover:bg-white/10 transition-colors">
-                <button type="button" onClick={() => navigate(`/attendance/student/${s.id}`)} className="font-mono text-sm text-muted-foreground text-left hover:text-primary">{s.roll_number}</button>
-                <button type="button" onClick={() => navigate(`/attendance/student/${s.id}`)} className="font-medium text-sm text-left hover:text-primary">{s.full_name}</button>
-                <div className="text-center text-sm font-semibold text-primary">{stat ? `${pct}%` : "—"}</div>
+              <div key={s.id} className="flex sm:grid sm:grid-cols-[100px_1fr_120px_140px_30px] flex-wrap items-center gap-2 sm:gap-0 px-3 sm:px-4 py-3 hover:bg-white/10 transition-colors">
+                <button type="button" onClick={() => navigate(`/attendance/student/${s.id}`)} className="font-mono text-xs sm:text-sm text-muted-foreground text-left hover:text-primary w-[60px] sm:w-auto">{s.roll_number}</button>
+                <button type="button" onClick={() => navigate(`/attendance/student/${s.id}`)} className="font-medium text-sm text-left hover:text-primary flex-1 min-w-0 truncate">{s.full_name}</button>
+                <div className="text-center text-sm font-semibold text-primary w-[60px] sm:w-auto">{stat ? `${pct}%` : "—"}</div>
                 <div className="flex justify-center">
                   <motion.button
                     whileTap={{ scale: 0.92 }}
                     onClick={() => toggle(s.id)}
                     className={cn(
-                      "px-4 py-1.5 rounded-full text-xs font-semibold border transition-all",
+                      "px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold border transition-all",
                       isPresent
                         ? "bg-emerald-500 text-white border-emerald-500"
                         : "bg-red-500 text-white border-red-500"
@@ -166,7 +166,7 @@ export function AttendanceTable() {
                     {isPresent ? "Present" : "Absent"}
                   </motion.button>
                 </div>
-                <button type="button" onClick={() => navigate(`/attendance/student/${s.id}`)} className="flex justify-end">
+                <button type="button" onClick={() => navigate(`/attendance/student/${s.id}`)} className="hidden sm:flex justify-end">
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </button>
               </div>

@@ -28,7 +28,7 @@ export function TemplateManager() {
     new Set(templates.filter((t) => t.subject_id === id).map((t) => t.chapter_number)).size;
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-3 sm:p-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <FileText className="h-6 w-6 text-primary" /> Subject Templates

@@ -55,7 +55,7 @@ export function Settings() {
   };
 
   return (
-    <div className="p-6 space-y-5 max-w-2xl">
+    <div className="p-3 sm:p-6 space-y-5 max-w-2xl">
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <SettingsIcon className="h-6 w-6 text-primary" /> Settings
