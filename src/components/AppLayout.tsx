@@ -13,7 +13,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         />
       </div>
       <AppSidebar />
-      <main className="flex-1 min-w-0 overflow-x-auto relative">
+      <main className="flex-1 min-w-0 overflow-x-auto relative pt-14 md:pt-0">
         {children}
       </main>
     </div>
