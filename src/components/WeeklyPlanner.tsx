@@ -302,6 +302,7 @@ export function WeeklyPlanner() {
             })}
           </div>
         ))}
+        </div>
       </div>
 
       {showExport && currentWeek && planData && (
