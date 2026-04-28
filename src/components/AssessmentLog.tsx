@@ -123,14 +123,14 @@ export function AssessmentLog() {
 
       <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4 flex flex-wrap gap-3">
         <Select value={filterSubject} onValueChange={setFilterSubject}>
-          <SelectTrigger className="w-[220px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[220px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All subjects</SelectItem>
             {data?.subjects.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All types</SelectItem>
             <SelectItem value="Quiz">Quiz</SelectItem>
@@ -140,7 +140,8 @@ export function AssessmentLog() {
         </Select>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
+      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-x-auto">
+        <div className="min-w-[760px]">
         <div className="grid grid-cols-[110px_1fr_1fr_100px_80px_90px_110px_30px] bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <div>Date</div><div>Subject</div><div>Topic</div><div>Type</div>
           <div className="text-center">Total</div><div className="text-center">Avg</div><div className="text-center">Completion</div><div></div>
@@ -166,6 +167,7 @@ export function AssessmentLog() {
           {filtered.length === 0 && (
             <div className="px-4 py-10 text-center text-sm text-muted-foreground italic">No assessments match your filters</div>
           )}
+        </div>
         </div>
       </div>
     </div>
