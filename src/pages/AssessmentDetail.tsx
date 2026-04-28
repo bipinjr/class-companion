@@ -44,8 +44,8 @@ export default function AssessmentDetail() {
     },
   });
 
-  if (isLoading) return <div className="p-6 text-muted-foreground">Loading…</div>;
-  if (!data) return <div className="p-6 text-muted-foreground">Assessment not found.</div>;
+  if (isLoading) return <div className="p-3 sm:p-6 text-muted-foreground">Loading…</div>;
+  if (!data) return <div className="p-3 sm:p-6 text-muted-foreground">Assessment not found.</div>;
 
   const { assessment, session, subject, topic, scores, students } = data;
   const studentMap = new Map(students.map((s: any) => [s.id, s]));
@@ -57,7 +57,7 @@ export default function AssessmentDetail() {
     .sort((a, b) => b.score - a.score);
 
   return (
-    <div className="p-6 space-y-5 max-w-6xl">
+    <div className="p-3 sm:p-6 space-y-5 max-w-6xl">
       <Link to="/assessments">
         <Button variant="ghost" size="sm" className="-ml-2">
           <ArrowLeft className="h-4 w-4 mr-1" /> All assessments

@@ -50,7 +50,7 @@ export default function TemplateSubjectDetail() {
   };
 
   return (
-    <div className="p-6 space-y-5 max-w-4xl">
+    <div className="p-3 sm:p-6 space-y-5 max-w-4xl">
       <Link to="/templates">
         <Button variant="ghost" size="sm" className="-ml-2">
           <ArrowLeft className="h-4 w-4 mr-1" /> All templates

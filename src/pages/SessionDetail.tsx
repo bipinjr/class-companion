@@ -43,15 +43,15 @@ export default function SessionDetail() {
     },
   });
 
-  if (isLoading) return <div className="p-6 text-muted-foreground">Loading…</div>;
-  if (!data) return <div className="p-6 text-muted-foreground">Session not found.</div>;
+  if (isLoading) return <div className="p-3 sm:p-6 text-muted-foreground">Loading…</div>;
+  if (!data) return <div className="p-3 sm:p-6 text-muted-foreground">Session not found.</div>;
 
   const { session, subject, topic, assessment, attendance, students, attachments } = data;
   const present = attendance.filter((a: any) => a.status === "present").length;
   const studentMap = new Map(students.map((s: any) => [s.id, s]));
 
   return (
-    <div className="p-6 space-y-5 max-w-6xl">
+    <div className="p-3 sm:p-6 space-y-5 max-w-6xl">
       <Link to="/">
         <Button variant="ghost" size="sm" className="-ml-2">
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to planner

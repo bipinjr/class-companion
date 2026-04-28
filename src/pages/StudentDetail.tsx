@@ -36,8 +36,8 @@ export default function StudentDetail() {
     },
   });
 
-  if (isLoading) return <div className="p-6 text-muted-foreground">Loading…</div>;
-  if (!data?.student) return <div className="p-6 text-muted-foreground">Student not found.</div>;
+  if (isLoading) return <div className="p-3 sm:p-6 text-muted-foreground">Loading…</div>;
+  if (!data?.student) return <div className="p-3 sm:p-6 text-muted-foreground">Student not found.</div>;
 
   const { student, attendance, sessions, subjects, scores } = data;
   const present = attendance.filter((a: any) => a.status === "present").length;
@@ -65,7 +65,7 @@ export default function StudentDetail() {
     : null;
 
   return (
-    <div className="p-6 space-y-5 max-w-6xl">
+    <div className="p-3 sm:p-6 space-y-5 max-w-6xl">
       <Link to="/attendance">
         <Button variant="ghost" size="sm" className="-ml-2">
           <ArrowLeft className="h-4 w-4 mr-1" /> All students

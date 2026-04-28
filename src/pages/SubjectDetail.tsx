@@ -40,8 +40,8 @@ export default function SubjectDetail() {
     },
   });
 
-  if (isLoading) return <div className="p-6 text-muted-foreground">Loading…</div>;
-  if (!data?.subject) return <div className="p-6 text-muted-foreground">Subject not found.</div>;
+  if (isLoading) return <div className="p-3 sm:p-6 text-muted-foreground">Loading…</div>;
+  if (!data?.subject) return <div className="p-3 sm:p-6 text-muted-foreground">Subject not found.</div>;
 
   const { subject, sessions, topics } = data;
   const completed = topics.filter((t: any) => t.status === "completed").length;
@@ -68,7 +68,7 @@ export default function SubjectDetail() {
   ];
 
   return (
-    <div className="p-6 space-y-5 max-w-6xl">
+    <div className="p-3 sm:p-6 space-y-5 max-w-6xl">
       <Link to="/progress">
         <Button variant="ghost" size="sm" className="-ml-2">
           <ArrowLeft className="h-4 w-4 mr-1" /> All subjects
