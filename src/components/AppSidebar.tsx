@@ -6,7 +6,7 @@ import {
   ClipboardList,
   FileText,
   Settings as SettingsIcon,
-  Sparkles,
+  Anchor,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlowCard } from "@/components/ui/spotlight-card";
@@ -30,7 +30,7 @@ export function AppSidebar() {
           className="h-9 w-9 rounded-[10px] flex items-center justify-center shrink-0"
           style={{ backgroundColor: "#3B7FEB" }}
         >
-          <Sparkles className="h-[18px] w-[18px] text-white" strokeWidth={2.25} />
+          <Anchor className="h-[18px] w-[18px] text-white" strokeWidth={2.25} />
         </div>
         <div className="leading-tight min-w-0">
           <p className="text-[16px] font-semibold text-white truncate">Smart Assistant</p>
@@ -66,7 +66,7 @@ export function AppSidebar() {
 
       {/* Footer version label */}
       <div className="px-4 py-4 border-t border-sidebar-border">
-        <p className="text-[11px] text-sidebar-foreground/50">v1.0 · Demo data seeded</p>
+        <p className="text-[11px] text-sidebar-foreground/50">​</p>
       </div>
     </aside>
   );
